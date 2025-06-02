@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Guess Who You Are!</title>
+  <style>
+    body {
+      background: linear-gradient(to bottom, #2b1055, #7597de);
+      color: white;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      text-align: center;
+      padding: 30px;
+      overflow-x: hidden;
+    }
+
+    .genie {
+      max-width: 200px;
+      margin-bottom: 20px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+
+    #quiz, #result {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 20px;
+      display: inline-block;
+      box-shadow: 0 0 20px #fff3;
+      max-width: 600px;
+      transition: opacity 0.5s ease;
+    }
+
+    button {
+      background-color: white;
+      color: #333;
+      border: none;
+      padding: 12px 20px;
+      margin: 10px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s ease, transform 0.2s ease;
+      width: 60%;
+    }
+
+    button:hover {
+      background-color: #eee;
+      transform: scale(1.05);
+    }
+
+    #thinking {
+      display: none;
+      font-size: 20px;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+    #result button {
+      margin: 0 auto;
+      display: block;
+}
+  </style>
+</head>
+<body>
+  
+  <audio id="clickSound" src="https://www.soundjay.com/buttons/sounds/button-29.mp3" preload="auto"></audio>
+  <audio id="bgMusic" src="https://www.bensound.com/bensound-music/bensound-funkyelement.mp3" loop preload="auto"></audio>
+
+  <img src="C:\Users\Shivaprasad\Desktop\webgame\genie.png" class="genie" alt="Genie">
+  
+  <h2>Guess Who You Are!</h2>
+
+  <div id="quiz">
+    <p id="question">Loading...</p>
+    <div id="options"></div>
+  </div>
+
+  <div id="thinking">🤔 Thinking...</div>
+
+  <div id="result" style="display:none;">
+    <h3 id="resultText"></h3>
+    <button onclick="restart()">🔁 Play Again</button>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        q: "What's your ideal weekend?",
+        options: {
+          "Playing video games": "Alex",
+          "Going to a concert": "Neha",
+          "Reading a book": "Priya",
+          "Going hiking": "Ravi"
+        }
+      },
+      {
+        q: "Pick a favorite drink:",
+        options: {
+          "Coffee": "Priya",
+          "Energy Drink": "Alex",
+          "Bubble Tea": "Neha",
+          "Water": "Ravi"
+        }
+      },
+      {
+        q: "Choose a color:",
+        options: {
+          "Blue": "Alex",
+          "Pink": "Neha",
+          "Green": "Ravi",
+          "Purple": "Priya"
+        }
+      }
+    ];
+
+    let current = 0;
+    let scores = {};
+    const clickSound = document.getElementById('clickSound');
+    const bgMusic = document.getElementById('bgMusic');
+
+    function playClick() {
+      clickSound.currentTime = 0;
+      clickSound.play();
+    }
+
+    function showQuestion() {
+      document.getElementById("thinking").style.display = "none";
+      const q = questions[current];
+      document.getElementById("question").innerText = q.q;
+      const optionsDiv = document.getElementById("options");
+      optionsDiv.innerHTML = '';
+
+      for (let [optionText, friend] of Object.entries(q.options)) {
+        const btn = document.createElement("button");
+        btn.innerText = optionText;
+        btn.onclick = () => {
+          playClick();
+          scores[friend] = (scores[friend] || 0) + 1;
+          nextQuestion();
+        };
+        optionsDiv.appendChild(btn);
+      }
+    }
+
+    function nextQuestion() {
+      current++;
+      if (current < questions.length) {
+        showQuestion();
+      } else {
+        document.getElementById("quiz").style.opacity = 0;
+        document.getElementById("thinking").style.display = "block";
+        setTimeout(showResult, 2500);
+      }
+    }
+
+    function showResult() {
+      document.getElementById("quiz").style.display = "none";
+      document.getElementById("thinking").style.display = "none";
+      document.getElementById("result").style.display = "block";
+
+      const winner = Object.entries(scores).reduce((a, b) => a[1] > b[1] ? a : b);
+      document.getElementById("resultText").innerText = "🧞 You are " + winner[0] + "!";
+    }
+
+    function restart() {
+      current = 0;
+      scores = {};
+      document.getElementById("result").style.display = "none";
+      document.getElementById("quiz").style.display = "inline-block";
+      document.getElementById("quiz").style.opacity = 1;
+      showQuestion();
+    }
+
+    // Start
+    window.onload = () => {
+      bgMusic.volume = 0.5;
+      bgMusic.play().catch(() => {}); // In case autoplay is blocked
+      showQuestion();
+    };
+  </script>
+</body>
+</html>
